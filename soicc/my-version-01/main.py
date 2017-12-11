@@ -5,7 +5,7 @@ def updateDataset(data):
    data['inc_angle'] = pd.to_numeric(data['inc_angle'], errors='coerce')
    data['inc_angle'] = data['inc_angle'].fillna(method='pad')
 
-train = pd.read_json('../input/train.json')
+train = pd.read_json('../../../statoil-iceberg-classifier-challenge/input/train.json')
 updateDataset(train)
 
 # Data fields
@@ -52,10 +52,10 @@ m = X.shape[0]
 print('X.shape[0] = ')
 print(m)
 
-for i in range(m)
+for i in range(m):
    z[i] = W.T * X[i] + b
    a[i] = sigma(z[i])
-   J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i])
+   J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
    dz[i] = a[i] - Y[i]
    dw += X[i] * dz[i]
    db += dz[i]
