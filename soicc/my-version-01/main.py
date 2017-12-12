@@ -1,3 +1,4 @@
+import os
 import pandas as pd  # read file
 import numpy as np   # processing functions
 
@@ -5,7 +6,10 @@ def updateDataset(data):
    data['inc_angle'] = pd.to_numeric(data['inc_angle'], errors='coerce')
    data['inc_angle'] = data['inc_angle'].fillna(method='pad')
 
-train = pd.read_json('../../../statoil-iceberg-classifier-challenge/input/train.json')
+current_file = os.path.abspath(os.path.dirname(__file__)) 
+train_filename = os.path.join(current_file, '..\..\..\statoil-iceberg-classifier-challenge/input/train.json')
+
+train = pd.read_json(train_filename)
 updateDataset(train)
 
 # Data fields
@@ -28,7 +32,31 @@ print(list(train)) # display columns in data frame
 #  sigmoid (z) = 1 / (1 + exp(-z))
 #
 def sigmoid(z):
-    return  1 / (1 + exp(-z))
+    return 1 / (1 + np.exp(-z))
+
+def initialize_parameters_with_zeros(dim):
+    w = np.zeros((dim,1))
+    b = 0
+    assert(w.shape == (dim, 1))
+    assert(isinstance(b, float) or isinstance(b, int))
+    return w, b
+
+def forward_propagate(w, b, X, Y):
+    m = X.shape[1]
+    A = sigmoid(w.T * X + b)
+    cost = - (1/m) * np.sum( Y * np.log(A) + (1 - Y) * np.log(1 - A))
+    cost = np.squeeze(cost)
+    assert(cost.shape == ())
+    return {"A": A, "cost": cost}
+
+def backward_propagate(w, A, X, Y):
+    m = X.shape[1]    
+    dw = (1/m) * X * (A - Y).T
+    db = (1/m) * np.sum(A - Y)
+    assert(dw.shape == w.shape)
+    assert(db.dtype == float)
+    grads = {"dw": dw, "db": db}
+    return grads
 
 # version 1: implement loss function
 # L( y^, y) = (1/2) * (y^ - y)^2
@@ -41,27 +69,27 @@ def sigmoid(z):
 # todo: using loss function implement cost function
 # J(w,b) = (1/m) * sum {i= 1, m} ( L(y^[i],y[i]))
 
-J = 0
-dw1 = 0
-dw2 = 0
-db = 0
-X = train['band_1']
-Y = train['is_iceberg']
+# J = 0
+# dw1 = 0
+# dw2 = 0
+# db = 0
+# X = train['band_1']
+# Y = train['is_iceberg']
 
-m = X.shape[0]
-print('X.shape[0] = ')
-print(m)
+# m = X.shape[0]
+# print('X.shape[0] = ')
+# print(m)
 
-for i in range(m):
-   z[i] = W.T * X[i] + b
-   a[i] = sigma(z[i])
-   J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
-   dz[i] = a[i] - Y[i]
-   dw += X[i] * dz[i]
-   db += dz[i]
+# for i in range(m):
+#    z[i] = W.T * X[i] + b
+#    a[i] = sigma(z[i])
+#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
+#    dz[i] = a[i] - Y[i]
+#    dw += X[i] * dz[i]
+#    db += dz[i]
 
-J=j/m
-dw=dw/m
-db=db/m
+# J=j/m
+# dw=dw/m
+# db=db/m
 
-print("done")
+# print("done")
