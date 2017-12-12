@@ -6,11 +6,10 @@ def updateDataset(data):
    data['inc_angle'] = pd.to_numeric(data['inc_angle'], errors='coerce')
    data['inc_angle'] = data['inc_angle'].fillna(method='pad')
 
-# current_file = os.path.abspath(os.path.dirname(__file__)) 
-# train_filename = os.path.join(current_file, '..\..\..\statoil-iceberg-classifier-challenge/input/train.json')
-
-# train = pd.read_json(train_filename)
-# updateDataset(train)
+current_file = os.path.abspath(os.path.dirname(__file__)) 
+input_folder = os.path.join(current_file, '..\..\..\statoil-iceberg-classifier-challenge\input')
+train_filename = os.path.join(input_folder, 'train.json')
+test_filename = os.path.join(input_folder, 'test.json')
 
 # Data fields
 # train.json, test.json
@@ -23,7 +22,13 @@ def updateDataset(data):
 #     inc_angle - the incidence angle of which the image was taken. 
 #     is_iceberg - the target variable, set to 1 if it is an iceberg, and 0 if it is a ship.
 
-# print(list(train)) # display columns in data frame
+train = pd.read_json(train_filename)
+updateDataset(train)
+
+test = pd.read_json(test_filename)
+updateDataset(test)
+
+print(list(train)) # display columns in data frame
 
 # todo: implement logistic regression for gradient descent
 #  y^ = sigmoid ( W^T * x + b)
@@ -70,6 +75,47 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost = False):
             print ("Cost after iteration %i: %f" %(i, cost))
     return w, b, dw, db, costs
 
+def predict(w, b, X):
+    m = X.shape[1]
+    Y_prediction = np.zeros((1,m))
+    w = w.reshape(X.shape[0], 1)
+    A = sigmoid(np.dot(w.T, X) + b)
+    for i in range(A.shape[1]):
+        if A[0,i] <= 0.5:
+            Y_prediction[0,i] = 0
+        else:
+            Y_prediction[0,i] = 1
+    assert(Y_prediction.shape == (1, m))
+    return Y_prediction
+
+def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate = 0.5, print_cost = False):
+    w, b = initialize_with_zeros(X_train.shape[0])
+    w, b, dw, db, costs = optimize(w, b, X_train, Y_train, num_iterations, learning_rate, print_cost)
+    Y_prediction_test = predict(w, b, X_test)
+    Y_prediction_train = predict(w, b, X_train)
+    train_accuracy = 100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100
+    test_accuracy = 100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100
+    d = {"costs": costs,
+         "Y_prediction_test": Y_prediction_test, 
+         "Y_prediction_train" : Y_prediction_train, 
+         "train_accuracy" : train_accuracy,
+         "test_accuracy" : test_accuracy,
+         "w" : w, 
+         "b" : b,
+         "learning_rate" : learning_rate,
+         "num_iterations": num_iterations}
+    return d
+
+train_set_x = train['band_1']
+train_set_y = train['is_iceberg']
+test_set_x = test['band_1']
+test_set_y = test['is_iceberg']
+
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+
+print("train accuracy: {} %".format(d["train_accuracy"]))
+print("test accuracy: {} %".format(d["test_accuracy"]))
+
 # version 1: implement loss function
 # L( y^, y) = (1/2) * (y^ - y)^2
 # this loss function creates non optimized problem when
@@ -104,4 +150,4 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost = False):
 # dw=dw/m
 # db=db/m
 
-# print("done")
+print("done")
