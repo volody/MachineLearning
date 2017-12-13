@@ -6,6 +6,14 @@ def updateDataset(data):
    data['inc_angle'] = pd.to_numeric(data['inc_angle'], errors='coerce')
    data['inc_angle'] = data['inc_angle'].fillna(method='pad')
 
+def normalize(x):
+    # Compute x_norm as the norm 2 of x. Use np.linalg.norm(..., ord = 2, axis = ..., keepdims = True)
+    x_norm = np.linalg.norm(x,axis=1,keepdims=True)
+    x = x / x_norm
+    return x
+
+print("start")
+
 current_file = os.path.abspath(os.path.dirname(__file__)) 
 input_folder = os.path.join(current_file, '..\..\..\statoil-iceberg-classifier-challenge\input')
 train_filename = os.path.join(input_folder, 'train.json')
@@ -25,10 +33,16 @@ test_filename = os.path.join(input_folder, 'test.json')
 train = pd.read_json(train_filename)
 updateDataset(train)
 
-test = pd.read_json(test_filename)
-updateDataset(test)
 
-print(list(train)) # display columns in data frame
+
+# test = pd.read_json(test_filename)
+# updateDataset(test)
+
+print(list(train))
+print(train.shape)
+
+# print(list(test))
+# print(test.shape)
 
 # todo: implement logistic regression for gradient descent
 #  y^ = sigmoid ( W^T * x + b)
@@ -46,10 +60,26 @@ def initialize_parameters_with_zeros(dim):
     assert(isinstance(b, float) or isinstance(b, int))
     return w, b
 
+#
+# loss function
+# L( y^, y) = - ( y * log(y^) + (1-y) * log(1- y^))
+#
+def loss_function(Y, A):
+    return - ( Y * np.log(A) + (1 - Y) * np.log(1 - A))
+
+# for i in range(m):
+#    z[i] = W.T * X[i] + b
+#    a[i] = sigma(z[i])
+#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
+#    dz[i] = a[i] - Y[i]
+#    dw += X[i] * dz[i]
+#    db += dz[i]
+
 def forward_propagate(w, b, X, Y):
     m = X.shape[1]
-    A = sigmoid(np.dot(w.T, X) + b)
-    cost = - (1/m) * np.sum( Y * np.log(A) + (1 - Y) * np.log(1 - A))
+    z = np.dot(w.T, X) + b
+    A = sigmoid(z)
+    cost += (1/m) * np.sum(loss_function(Y, A))
     cost = np.squeeze(cost)
     assert(cost.shape == ())
     return A, cost
@@ -89,7 +119,7 @@ def predict(w, b, X):
     return Y_prediction
 
 def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate = 0.5, print_cost = False):
-    w, b = initialize_with_zeros(X_train.shape[0])
+    w, b = initialize_parameters_with_zeros(X_train.shape[0])
     w, b, dw, db, costs = optimize(w, b, X_train, Y_train, num_iterations, learning_rate, print_cost)
     Y_prediction_test = predict(w, b, X_test)
     Y_prediction_train = predict(w, b, X_train)
@@ -106,48 +136,21 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
          "num_iterations": num_iterations}
     return d
 
-train_set_x = train['band_1']
-train_set_y = train['is_iceberg']
-test_set_x = test['band_1']
-test_set_y = test['is_iceberg']
+train_set_x, test_set_x = np.split(train['band_1'], 2)
+train_set_y, test_set_y = np.split(train['is_iceberg'], 2)
+# test_set_x = train['band_1'][1200:]
+# test_set_y = train['is_iceberg'][1200:]
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+# print(train_set_x.shape)
+# print(train_set_y.shape)
+# print(test_set_x.shape)
+# print(test_set_y.shape)
 
-print("train accuracy: {} %".format(d["train_accuracy"]))
-print("test accuracy: {} %".format(d["test_accuracy"]))
+print(train_set_x.to_string())
 
-# version 1: implement loss function
-# L( y^, y) = (1/2) * (y^ - y)^2
-# this loss function creates non optimized problem when
-# no local optima for gradient descent
+# d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
-# version 2: implement loss function
-# L( y^, y) = - ( y * log(y^) + (1-y) * log(1- y^))
-
-# todo: using loss function implement cost function
-# J(w,b) = (1/m) * sum {i= 1, m} ( L(y^[i],y[i]))
-
-# J = 0
-# dw1 = 0
-# dw2 = 0
-# db = 0
-# X = train['band_1']
-# Y = train['is_iceberg']
-
-# m = X.shape[0]
-# print('X.shape[0] = ')
-# print(m)
-
-# for i in range(m):
-#    z[i] = W.T * X[i] + b
-#    a[i] = sigma(z[i])
-#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
-#    dz[i] = a[i] - Y[i]
-#    dw += X[i] * dz[i]
-#    db += dz[i]
-
-# J=j/m
-# dw=dw/m
-# db=db/m
+# print("train accuracy: {} %".format(d["train_accuracy"]))
+# print("test accuracy: {} %".format(d["test_accuracy"]))
 
 print("done")
