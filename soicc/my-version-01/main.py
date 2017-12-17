@@ -14,48 +14,13 @@ def normalize(x):
     x = x / x_norm
     return x
 
-
-print("start")
-
-current_file = os.path.abspath(os.path.dirname(__file__))
-input_folder = os.path.join(
-    current_file, '..\..\..\statoil-iceberg-classifier-challenge\input')
-train_filename = os.path.join(input_folder, 'train.json')
-test_filename = os.path.join(input_folder, 'test.json')
-
-# Data fields
-# train.json, test.json
-#
-# The data (train.json, test.json) is presented in json format. The files consist of a list of images,
-# and for each image, you can find the following fields:
-#
-#     id - the id of the image
-#     band_1, band_2 - the flattened image data. Each band has 75x75 pixel values in the list
-#     inc_angle - the incidence angle of which the image was taken.
-#     is_iceberg - the target variable, set to 1 if it is an iceberg, and 0 if it is a ship.
-
-train = pd.read_json(train_filename)
-updateDataset(train)
-
-
-# test = pd.read_json(test_filename)
-# updateDataset(test)
-
-print(list(train))
-print(train.shape)
-
-# print(list(test))
-# print(test.shape)
-
 # todo: implement logistic regression for gradient descent
 #  y^ = sigmoid ( W^T * x + b)
 
-#
-#  sigmoid (z) = 1 / (1 + exp(-z))
-#
-
-
 def sigmoid(z):
+    """
+       calculates sigmoid (z) = 1 / (1 + exp(-z))
+    """
     return 1 / (1 + np.exp(-z))
 
 
@@ -66,22 +31,13 @@ def initialize_parameters_with_zeros(dim):
     assert(isinstance(b, float) or isinstance(b, int))
     return w, b
 
-#
-# loss function
-# L( y^, y) = - ( y * log(y^) + (1-y) * log(1- y^))
-#
-
 
 def loss_function(Y, A):
+    """
+        calculates loss function
+        L( y^, y) = - ( y * log(y^) + (1-y) * log(1- y^))
+    """
     return - (Y * np.log(A) + (1 - Y) * np.log(1 - A))
-
-# for i in range(m):
-#    z[i] = W.T * X[i] + b
-#    a[i] = sigma(z[i])
-#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
-#    dz[i] = a[i] - Y[i]
-#    dw += X[i] * dz[i]
-#    db += dz[i]
 
 
 def forward_propagate(w, b, X, Y):
@@ -151,6 +107,45 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations=2000, learning_rate=0
     return d
 
 
+print("start")
+
+# for i in range(m):
+#    z[i] = W.T * X[i] + b
+#    a[i] = sigma(z[i])
+#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
+#    dz[i] = a[i] - Y[i]
+#    dw += X[i] * dz[i]
+#    db += dz[i]
+
+current_file = os.path.abspath(os.path.dirname(__file__))
+input_folder = os.path.join(
+    current_file, '..\..\..\statoil-iceberg-classifier-challenge\input')
+train_filename = os.path.join(input_folder, 'train.json')
+test_filename = os.path.join(input_folder, 'test.json')
+
+# Data fields
+# train.json, test.json
+#
+# The data (train.json, test.json) is presented in json format. The files consist of a list of images,
+# and for each image, you can find the following fields:
+#
+#     id - the id of the image
+#     band_1, band_2 - the flattened image data. Each band has 75x75 pixel values in the list
+#     inc_angle - the incidence angle of which the image was taken.
+#     is_iceberg - the target variable, set to 1 if it is an iceberg, and 0 if it is a ship.
+
+train = pd.read_json(train_filename)
+updateDataset(train)
+
+# test = pd.read_json(test_filename)
+# updateDataset(test)
+
+print(list(train))
+print(train.shape)
+
+# print(list(test))
+# print(test.shape)
+
 train_set_x, test_set_x = np.split(train['band_1'], 2)
 train_set_y, test_set_y = np.split(train['is_iceberg'], 2)
 # test_set_x = train['band_1'][1200:]
@@ -161,7 +156,8 @@ train_set_y, test_set_y = np.split(train['is_iceberg'], 2)
 # print(test_set_x.shape)
 # print(test_set_y.shape)
 
-print(train_set_x.to_string())
+train_set_x = train_set_x.values
+print(train_set_x.shape)
 
 # d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
