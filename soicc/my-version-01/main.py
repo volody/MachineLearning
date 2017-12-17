@@ -44,7 +44,7 @@ def forward_propagate(w, b, X, Y):
     m = X.shape[1]
     z = np.dot(w.T, X) + b
     A = sigmoid(z)
-    cost += (1 / m) * np.sum(loss_function(Y, A))
+    cost = (1 / m) * np.sum(loss_function(Y, A))
     cost = np.squeeze(cost)
     assert(cost.shape == ())
     return A, cost
@@ -142,8 +142,10 @@ test_set_x = test_set_x.T
 train_set_y = train_set_y.T
 test_set_y = test_set_y.T
 
-print(type(train_set_x))
 print(train_set_x.shape)
+print(test_set_x.shape)
+print(train_set_y.shape)
+print(test_set_y.shape)
 
 d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
