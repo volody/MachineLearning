@@ -109,14 +109,6 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations=2000, learning_rate=0
 
 print("start")
 
-# for i in range(m):
-#    z[i] = W.T * X[i] + b
-#    a[i] = sigma(z[i])
-#    J += -( Y[i] * log(a[i]) + ( 1 - Y[i]) * log(1 - a[i]))
-#    dz[i] = a[i] - Y[i]
-#    dw += X[i] * dz[i]
-#    db += dz[i]
-
 current_file = os.path.abspath(os.path.dirname(__file__))
 input_folder = os.path.join(
     current_file, '..\..\..\statoil-iceberg-classifier-challenge\input')
@@ -140,28 +132,22 @@ updateDataset(train)
 # test = pd.read_json(test_filename)
 # updateDataset(test)
 
-print(list(train))
-print(train.shape)
+to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 
-# print(list(test))
-# print(test.shape)
+train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), 2)
+train_set_y, test_set_y = np.split(to_arr(train['is_iceberg'].values), 2)
 
-train_set_x, test_set_x = np.split(train['band_1'], 2)
-train_set_y, test_set_y = np.split(train['is_iceberg'], 2)
-# test_set_x = train['band_1'][1200:]
-# test_set_y = train['is_iceberg'][1200:]
+train_set_x = train_set_x.T
+test_set_x = test_set_x.T
+train_set_y = train_set_y.T
+test_set_y = test_set_y.T
 
-# print(train_set_x.shape)
-# print(train_set_y.shape)
-# print(test_set_x.shape)
-# print(test_set_y.shape)
-
-train_set_x = train_set_x.values
+print(type(train_set_x))
 print(train_set_x.shape)
 
-# d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
-# print("train accuracy: {} %".format(d["train_accuracy"]))
-# print("test accuracy: {} %".format(d["test_accuracy"]))
+print("train accuracy: {} %".format(d["train_accuracy"]))
+print("test accuracy: {} %".format(d["test_accuracy"]))
 
 print("done")
