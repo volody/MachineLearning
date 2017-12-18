@@ -9,7 +9,6 @@ def updateDataset(data):
 
 
 def normalize(x):
-    # Compute x_norm as the norm 2 of x. Use np.linalg.norm(..., ord = 2, axis = ..., keepdims = True)
     x_norm = np.linalg.norm(x, axis=1, keepdims=True)
     x = x / x_norm
     return x
@@ -135,7 +134,7 @@ updateDataset(train)
 to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 
 train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), 2)
-train_set_y, test_set_y = np.split(to_arr(train['is_iceberg'].values), 2)
+train_set_y, test_set_y = np.split(train['is_iceberg'].values, 2)
 
 train_set_x = train_set_x.T
 test_set_x = test_set_x.T
@@ -149,7 +148,7 @@ print(test_set_y.shape)
 
 d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
 
-print("train accuracy: {} %".format(d["train_accuracy"]))
-print("test accuracy: {} %".format(d["test_accuracy"]))
+# print("train accuracy: {} %".format(d["train_accuracy"]))
+# print("test accuracy: {} %".format(d["test_accuracy"]))
 
 print("done")
