@@ -127,28 +127,30 @@ test_filename = os.path.join(input_folder, 'test.json')
 
 train = pd.read_json(train_filename)
 updateDataset(train)
+m_train = train.shape[0]
 
 # test = pd.read_json(test_filename)
 # updateDataset(test)
 
+
 to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 
-train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), 2)
-train_set_y, test_set_y = np.split(train['is_iceberg'].values, 2)
+train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), [1500])
+train_set_y, test_set_y = np.split(train['is_iceberg'].values, [1500])
 
 train_set_x = normalize(train_set_x.T)
 test_set_x = normalize(test_set_x.T)
-train_set_y = normalize(train_set_y.reshape(1,802))
-test_set_y = normalize(test_set_y.reshape(1,802))
+train_set_y = normalize(train_set_y.reshape(1,1500))
+test_set_y = normalize(test_set_y.reshape(1,104))
 
 print(train_set_x.shape)
 print(test_set_x.shape)
 print(train_set_y.shape)
 print(test_set_y.shape)
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 10000, learning_rate = 0.005, print_cost = True)
 
-# print("train accuracy: {} %".format(d["train_accuracy"]))
-# print("test accuracy: {} %".format(d["test_accuracy"]))
+print("train accuracy: {} %".format(d["train_accuracy"]))
+print("test accuracy: {} %".format(d["test_accuracy"]))
 
 print("done")
