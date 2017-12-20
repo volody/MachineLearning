@@ -136,10 +136,10 @@ to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), 2)
 train_set_y, test_set_y = np.split(train['is_iceberg'].values, 2)
 
-train_set_x = train_set_x.T
-test_set_x = test_set_x.T
-train_set_y = train_set_y.T
-test_set_y = test_set_y.T
+train_set_x = normalize(train_set_x.T)
+test_set_x = normalize(test_set_x.T)
+train_set_y = normalize(train_set_y.reshape(1,802))
+test_set_y = normalize(test_set_y.reshape(1,802))
 
 print(train_set_x.shape)
 print(test_set_x.shape)
