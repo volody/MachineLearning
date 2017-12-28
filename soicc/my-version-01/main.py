@@ -69,12 +69,12 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost=False):
             costs.append(cost)
         if print_cost and i % 100 == 0:
             print("Cost after iteration %i: %f" % (i, cost))
-    return w, b, dw, db, costs
+    return w, b, costs
 
 
 def predict(w, b, X):
     m = X.shape[1]
-    Y_prediction = np.zeros((1, m))
+    Y_prediction = np.zeros((1, m), dtype=np.int)
     w = w.reshape(X.shape[0], 1)
     A = sigmoid(np.dot(w.T, X) + b)
     for i in range(A.shape[1]):
@@ -88,7 +88,7 @@ def predict(w, b, X):
 
 def model(X_train, Y_train, X_test, Y_test, num_iterations=2000, learning_rate=0.5, print_cost=False):
     w, b = initialize_parameters_with_zeros(X_train.shape[0])
-    w, b, dw, db, costs = optimize(
+    w, b, costs = optimize(
        w, b, X_train, Y_train, num_iterations, learning_rate, print_cost)
     Y_prediction_test = predict(w, b, X_test)
     Y_prediction_train = predict(w, b, X_train)
@@ -129,28 +129,76 @@ train = pd.read_json(train_filename)
 updateDataset(train)
 m_train = train.shape[0]
 
-# test = pd.read_json(test_filename)
-# updateDataset(test)
-
+test = pd.read_json(test_filename)
+updateDataset(test)
 
 to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 
-train_set_x, test_set_x = np.split(to_arr(train['band_1'].values), [1500])
-train_set_y, test_set_y = np.split(train['is_iceberg'].values, [1500])
+split_value = 0.92
+train_number = int(m_train * split_value)
+
+train_set_x, dev_set_x = np.split(
+    to_arr(train['band_1'].values), [train_number])
+train_set_y, dev_set_y = np.split(
+    train['is_iceberg'].values, [train_number])
+
+print("train_set_y iceberg count is {}".format(np.count_nonzero(train_set_y)))
+print("dev_set_y iceberg count is {}".format(np.count_nonzero(dev_set_y)))
 
 train_set_x = normalize(train_set_x.T)
-test_set_x = normalize(test_set_x.T)
-train_set_y = normalize(train_set_y.reshape(1,1500))
-test_set_y = normalize(test_set_y.reshape(1,104))
+train_set_y = normalize(train_set_y.reshape(1, train_number))
 
-print(train_set_x.shape)
-print(test_set_x.shape)
-print(train_set_y.shape)
-print(test_set_y.shape)
+dev_set_x = normalize(dev_set_x.T)
+dev_set_y = normalize(dev_set_y.reshape(1, m_train - train_number))
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 10000, learning_rate = 0.005, print_cost = True)
+# print(train_set_x.shape)
+# print(dev_set_x.shape)
+# print(train_set_y.shape)
+# print(dev_set_y.shape)
 
-print("train accuracy: {} %".format(d["train_accuracy"]))
-print("test accuracy: {} %".format(d["test_accuracy"]))
+model_band_1 = model(train_set_x, train_set_y, dev_set_x, dev_set_y,
+          num_iterations=2000, learning_rate=0.005, print_cost=True)
+
+print("band_1 train accuracy: {} %".format(model_band_1["train_accuracy"]))
+print("band_1 test accuracy: {} %".format(model_band_1["test_accuracy"]))
+
+# run same for band_2
+train_set_x, dev_set_x = np.split(
+    to_arr(train['band_2'].values), [train_number])
+train_set_x = normalize(train_set_x.T)
+dev_set_x = normalize(dev_set_x.T)
+
+model_band_2 = model(train_set_x, train_set_y, dev_set_x, dev_set_y,
+          num_iterations=2000, learning_rate=0.005, print_cost=True)
+
+print("band_2 train accuracy: {} %".format(model_band_2["train_accuracy"]))
+print("band_2 test accuracy: {} %".format(model_band_2["test_accuracy"]))
+
+# run prediction
+
+X_test_band_1 = to_arr(test['band_1'].values)
+X_test_band_1 = normalize(X_test_band_1.T)
+
+X_test_band_2 = to_arr(test['band_2'].values)
+X_test_band_2 = normalize(X_test_band_2.T)
+
+Y_test_band_1 = predict(model_band_1["w"], model_band_1["b"], X_test_band_1)
+Y_test_band_2 = predict(model_band_2["w"], model_band_2["b"], X_test_band_2)
+
+print(Y_test_band_1.shape)
+print(Y_test_band_2.shape)
+
+print(np.count_nonzero(Y_test_band_1))
+print(np.count_nonzero(Y_test_band_2))
+print(np.count_nonzero((Y_test_band_1==Y_test_band_2).all()))
+
+print(Y_test_band_1)
+print(Y_test_band_2)
+
+# save results
+subm = pd.DataFrame()
+subm['id'] = test['id']
+subm['is_iceberg'] = np.squeeze(Y_test_band_1 * Y_test_band_2)
+subm.to_csv("submission.csv", index=False)
 
 print("done")
