@@ -7,11 +7,14 @@ def updateDataset(data):
    data['inc_angle'] = pd.to_numeric(data['inc_angle'], errors='coerce')
    data['inc_angle'] = data['inc_angle'].fillna(method='pad')
 
-
 def normalize(x):
     x_norm = np.linalg.norm(x, axis=1, keepdims=True)
     x = x / x_norm
     return x
+
+def to_arr(x):
+    return np.asarray([np.asarray(item) for item in x])
+
 
 # todo: implement code here
 
@@ -41,7 +44,6 @@ m_train = train.shape[0]
 test = pd.read_json(test_filename)
 updateDataset(test)
 
-to_arr = lambda x: np.asarray([np.asarray(item) for item in x])
 
 split_value = 0.92
 train_number = int(m_train * split_value)
