@@ -21,5 +21,16 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
   python --version
 
-- install tensorflow
+- install tensorflow (https://www.tensorflow.org/install/install_windows)
 
+  pip3 install --upgrade tensorflow-gpu
+
+### download kaggle dataset
+
+- install kaggle (https://github.com/Kaggle/kaggle-api)
+
+  pip install kaggle
+
+- download dataset
+
+  kaggle competitions download -p ../../data/titanic -c titanic
