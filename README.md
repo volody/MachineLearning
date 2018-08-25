@@ -1,5 +1,25 @@
 # MachineLearning
 
-This folder is used for demo neural networks.
-Input dataset taken from Statoil/C-CORE Iceberg Classifier Challenge
-https://www.kaggle.com/c/statoil-iceberg-classifier-challenge
+## Common tasks:
+
+Prerequsites: VSCode, terminal wirndow, power shell
+
+- create environment p362tfgpu
+
+  virtualenv -p C:\Users\developer\AppData\Local\Programs\Python\Python36\python.exe C:\Projects\virtualenv\p362tfgpu
+
+- set access rights
+
+  Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+- run activate ps1 script
+
+  for ex:
+  C:\Projects\virtualenv\p362tfgpu\Scripts\activate.ps1
+
+- check python version 
+
+  python --version
+
+- install tensorflow
+
