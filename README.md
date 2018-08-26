@@ -25,6 +25,15 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
   pip3 install --upgrade tensorflow-gpu
 
+- install jupyter notebook
+
+  pip install jupyter
+
+- install scikit-learn
+
+  pip install scikit-learn
+  pip install scipy
+
 ### download kaggle dataset
 
 - install kaggle (https://github.com/Kaggle/kaggle-api)
@@ -33,4 +42,4 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
 - download dataset
 
-  kaggle competitions download -p ../../data/titanic -c titanic
+  kaggle competitions download -p ../../input/titanic -c titanic
