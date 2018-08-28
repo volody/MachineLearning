@@ -1,42 +1,53 @@
-# Load libraries for analysis and visualization
+# 
 import pandas as pd 
 import numpy as np
-from sklearn import linear_model
-import random
 
-def fillNaN_with_unifrand(df, name):
-    col = df[name]
-    a = col.values
-    m = np.isnan(a) # mask of NaNs
-    mu, sigma = col.mean(), col.std()
-    a[m] = np.random.normal(mu, sigma, size=m.sum())
-    return df
+# import sklearn
+# print('The scikit-learn version is {}.'.format(sklearn.__version__))
+
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import Imputer
+from future_encoders import OneHotEncoder
 
 # Load in the train and test datasets from the CSV files
 # into DataFrame
-X = pd.read_csv('../../input/titanic/train.csv')
-#test = pd.read_csv('../../input/titanic/test.csv')
+train_data = pd.read_csv('../../input/titanic/train.csv')
+test_data = pd.read_csv('../../input/titanic/test.csv')
 
-# adjust data
-y = X['Survived']
-# convert string to enum
-X['Sex1'] = pd.factorize(X['Sex'])[0] + 1
-X['Embarked1'] = pd.factorize(X['Embarked'])[0] + 1
-# drop string column
-X = X.drop(columns=['Survived','Name','Ticket','Sex','Embarked','PassengerId','Cabin'])
-fillNaN_with_unifrand(X,'Age')
-#x['A'] = x['A'].apply(lambda v: random.random() * 1000)
+# select numerical or categorical columns 
+# since Scikit-Learn doesn't handle DataFrames yet
+class DataFrameSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, attribute_names):
+        self.attribute_names = attribute_names
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X):
+        return X[self.attribute_names]
 
-print(X.head(20))
+# build the pipeline for the numerical attributes
+imputer = Imputer(strategy="median")
 
-# Binary classifier
-X_train, X_test, y_train, y_test = X[:800], X[800:], y[:800], y[800:]
+num_pipeline = Pipeline([
+        ("select_numeric", DataFrameSelector(["Age", "SibSp", "Parch", "Fare"])),
+        ("imputer", Imputer(strategy="median")),
+    ])
 
-y_train_survived = (y_train == 1)
-y_test_survived = (y_test == 1)
+num_pipeline.fit_transform(train_data)
 
-sgd_clf = linear_model.SGDClassifier(max_iter=5, random_state=42)
-sgd_clf.fit(X_train, y_train_survived)
+#We will also need an imputer for the string categorical columns (the regular Imputer does not work on those):
+# Inspired from stackoverflow.com/questions/25239958
+class MostFrequentImputer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.most_frequent_ = pd.Series([X[c].value_counts().index[0] for c in X],
+                                        index=X.columns)
+        return self
+    def transform(self, X, y=None):
+        return X.fillna(self.most_frequent_)
 
-some_data = X_test.iloc[[10]]
-sgd_clf.predict([some_data])
+cat_pipeline = Pipeline([
+        ("select_cat", DataFrameSelector(["Pclass", "Sex", "Embarked"])),
+        ("imputer", MostFrequentImputer()),
+        ("cat_encoder", OneHotEncoder(sparse=False)),
+    ])
+
