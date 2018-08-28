@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 from sklearn import base, pipeline, preprocessing, svm, model_selection, ensemble
 
+# To plot pretty figures
+import matplotlib
+import matplotlib.pyplot as plt
+
 #import sklearn
 #print('The scikit-learn version is {}.'.format(sklearn.__version__))
 
@@ -80,3 +84,11 @@ print('The SVC cross_val_score is {}.'.format(svm_scores.mean()))
 forest_clf = ensemble.RandomForestClassifier(random_state=42)
 forest_scores = model_selection.cross_val_score(forest_clf, X_train, y_train, cv=10)
 print('The RandomForestClassifier cross_val_score is {}.'.format(forest_scores.mean()))
+
+# display results
+plt.figure(figsize=(8, 4))
+plt.plot([1]*10, svm_scores, ".")
+plt.plot([2]*10, forest_scores, ".")
+plt.boxplot([svm_scores, forest_scores], labels=("SVM","Random Forest"))
+plt.ylabel("Accuracy", fontsize=14)
+plt.show()

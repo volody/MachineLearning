@@ -34,6 +34,10 @@ Prerequsites: VSCode, terminal wirndow, power shell
   pip install scikit-learn
   pip install scipy
 
+- install matplotlib
+
+  pip install matplotlib
+
 ### download kaggle dataset
 
 - install kaggle (https://github.com/Kaggle/kaggle-api)
