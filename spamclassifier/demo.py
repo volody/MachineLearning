@@ -3,7 +3,7 @@ import email
 from email import policy
 from collections import Counter
 import numpy as np
-from sklearn import model_selection, base, pipeline
+from sklearn import model_selection, base, pipeline, linear_model, metrics
 import re
 from html import unescape
 from scipy import sparse
@@ -207,3 +207,19 @@ preprocess_pipeline = pipeline.Pipeline([
 ])
 
 X_train_transformed = preprocess_pipeline.fit_transform(X_train)
+
+# validate
+log_clf = linear_model.LogisticRegression(random_state=42)
+score = model_selection.cross_val_score(log_clf, X_train_transformed, y_train, cv=3, verbose=3)
+print('The cross_val_score is {}.'.format(score.mean()))
+
+# precision/recall 
+X_test_transformed = preprocess_pipeline.transform(X_test)
+
+log_clf = linear_model.LogisticRegression(random_state=42)
+log_clf.fit(X_train_transformed, y_train)
+
+y_pred = log_clf.predict(X_test_transformed)
+
+print("Precision: {:.2f}%".format(100 * metrics.precision_score(y_test, y_pred)))
+print("Recall: {:.2f}%".format(100 * metrics.recall_score(y_test, y_pred)))
