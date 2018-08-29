@@ -3,11 +3,10 @@ import email
 from email import policy
 from collections import Counter
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn import model_selection, base, pipeline
 import re
 from html import unescape
-from sklearn.base import BaseEstimator, TransformerMixin
-from scipy.sparse import csr_matrix
+from scipy import sparse
 
 SPAM_PATH = "../../input/spamclassifier/"
 
@@ -74,7 +73,7 @@ def structures_counter(emails):
 X = np.array(ham_emails + spam_emails)
 y = np.array([0] * len(ham_emails) + [1] * len(spam_emails))
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
 
 def html_to_plain_text(html):
     text = re.sub('<head.*?>.*?</head>', '', html, flags=re.M | re.S | re.I)
@@ -131,7 +130,7 @@ except ImportError:
     print("Error: replacing URLs requires the urlextract module.")
     url_extractor = None    
 
-class EmailToWordCounterTransformer(BaseEstimator, TransformerMixin):
+class EmailToWordCounterTransformer(base.BaseEstimator, base.TransformerMixin):
     def __init__(self, strip_headers=True, lower_case=True, remove_punctuation=True,
                  replace_urls=True, replace_numbers=True, stemming=True):
         self.strip_headers = strip_headers
@@ -172,7 +171,7 @@ X_few = X_train[:3]
 X_few_wordcounts = EmailToWordCounterTransformer().fit_transform(X_few)
 # print(X_few_wordcounts)
 
-class WordCounterToVectorTransformer(BaseEstimator, TransformerMixin):
+class WordCounterToVectorTransformer(base.BaseEstimator, base.TransformerMixin):
     def __init__(self, vocabulary_size=1000):
         self.vocabulary_size = vocabulary_size
     def fit(self, X, y=None):
@@ -193,10 +192,18 @@ class WordCounterToVectorTransformer(BaseEstimator, TransformerMixin):
                 rows.append(row)
                 cols.append(self.vocabulary_.get(word, 0))
                 data.append(count)
-        return csr_matrix((data, (rows, cols)), shape=(len(X), self.vocabulary_size + 1))
+        return sparse.csr_matrix((data, (rows, cols)), shape=(len(X), self.vocabulary_size + 1))
 
 
 vocab_transformer = WordCounterToVectorTransformer(vocabulary_size=10)
 X_few_vectors = vocab_transformer.fit_transform(X_few_wordcounts)
 print(X_few_vectors.toarray())
 print(vocab_transformer.vocabulary_)
+
+# train 
+preprocess_pipeline = pipeline.Pipeline([
+    ("email_to_wordcount", EmailToWordCounterTransformer()),
+    ("wordcount_to_vector", WordCounterToVectorTransformer()),
+])
+
+X_train_transformed = preprocess_pipeline.fit_transform(X_train)
