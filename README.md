@@ -1,5 +1,22 @@
 # MachineLearning
 
+## Prerequsites:
+
+- install Python 3.6.8 (or later)
+
+- set env vars
+
+  $ set PATH=C:\Users\developer\AppData\Local\Programs\Python\Python36;%PATH%
+  $ set PYTHONPATH=%PYTHONPATH%
+
+- check pip
+
+  $ pip --version
+
+- install virtualenv via cmd
+
+  $ pip install --user pipenv
+
 ## Common tasks:
 
 Prerequsites: VSCode, terminal wirndow, power shell
