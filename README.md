@@ -24,6 +24,10 @@ Prerequsites: VSCode, terminal wirndow, power shell
 - create environment p362tfgpu
 
   virtualenv -p C:\Users\developer\AppData\Local\Programs\Python\Python36\python.exe C:\Projects\virtualenv\p362tfgpu
+  
+  or
+  
+  python -m venv p362tfgpu ENV_DIR C:\Projects\virtualenv\p362tfgpu
 
 - set access rights
 
