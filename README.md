@@ -6,7 +6,7 @@
 
 - set env vars
 
-  $ set PATH=C:\Users\developer\AppData\Local\Programs\Python\Python36;%PATH%
+  $ set PATH=C:\Users\developer\AppData\Local\Programs\Python\Python36;%PATH%  
   $ set PYTHONPATH=%PYTHONPATH%
 
 - check pip
@@ -27,7 +27,7 @@ Prerequsites: VSCode, terminal wirndow, power shell
   
   or
   
-  cd C:\Projects\virtualenv
+  cd C:\Projects\virtualenv  
   python -m virtualenv p362tfgpu
 
 - set access rights
