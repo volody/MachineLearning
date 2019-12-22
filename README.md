@@ -69,3 +69,10 @@ Prerequsites: VSCode, terminal wirndow, power shell
 - download dataset
 
   kaggle competitions download -p ../../input/titanic -c titanic
+
+### set path variable
+
+- linux bash
+
+   export MOD_OPT=/opt/intel/openvino/deployment_tools/model_optimizer
+   then use $MOD_OPT/mo.py
