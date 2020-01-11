@@ -76,3 +76,10 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
   export MOD_OPT=/opt/intel/openvino/deployment_tools/model_optimizer
   then use $MOD_OPT/mo.py
+  
+### jupiter notebook
+
+- install package
+
+  import sys
+  !{sys.executable} -m pip install pymc3
