@@ -74,10 +74,6 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
 - linux bash
 
-<<<<<<< HEAD
-   export MOD_OPT=/opt/intel/openvino/deployment_tools/model_optimizer
-   then use $MOD_OPT/mo.py
-=======
   export MOD_OPT=/opt/intel/openvino/deployment_tools/model_optimizer
   then use $MOD_OPT/mo.py
   
@@ -87,4 +83,3 @@ Prerequsites: VSCode, terminal wirndow, power shell
 
   import sys
   !{sys.executable} -m pip install pymc3
->>>>>>> 2c1f7cc77dc8745b3c7371fcf9a89330601d8ecd
